@@ -23,6 +23,8 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		mass = 1;
 		force = mass * 9.81;
 		
+		//what THE FUCK
+		
 		position = new Vector2D(x, y);
 		velocity = new Vector2D(50, 0);
 		acceleration = new Vector2D(0, 21);
