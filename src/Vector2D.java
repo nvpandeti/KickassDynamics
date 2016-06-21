@@ -15,6 +15,14 @@ public class Vector2D {
 		return y;
 	}
 	
+	public void setX(double x){
+		this.x = x;
+	}
+	
+	public void setY(double y){
+		this.y = y;
+	}
+	
 	public String toString(){
 		return "X: " + x + "Y: " + y;
 	}
