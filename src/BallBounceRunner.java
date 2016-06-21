@@ -1,6 +1,11 @@
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -12,24 +17,25 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	private int x, y;
 	private double mass, force;
 	
-	private Ball ball;
-	
 	private Vector2D position, velocity, acceleration;
 	
+	private ArrayList<Shape> path;
+	
 	public BallBounceRunner(){
+		
 		setSize(1920/2, 1080/2);
 		x = 100;
 		y = 100;
 		mass = 1;
 		force = mass * 9.81;
 		
-		//what THE FUCK
-		
 		position = new Vector2D(x, y);
-		velocity = new Vector2D(50, 0);
+		velocity = new Vector2D(100, 0);
 		acceleration = new Vector2D(0, 21);
 		
-		ball = new Ball(position, velocity, mass, 25, Color.black);
+		setIgnoreRepaint(true);
+		
+		path = new ArrayList<Shape>();
 	}
 	
 	public void run() {
@@ -42,11 +48,12 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		long nextRender = getTickCount();
 		int loops;
 		int count = 0;
+		int count2 = 0;
 		long timer = System.currentTimeMillis();
 		
 		while(running){
 			loops = 0;
-			while(getTickCount() > nextGameTick){
+			while(getTickCount() > nextGameTick && loops<5){
 				tick();
 				nextGameTick += SKIP_TICKS;
 				loops++;
@@ -55,43 +62,65 @@ public class BallBounceRunner extends JPanel implements Runnable{
 			while(getTickCount() > nextRender){
 				render();
 				nextRender += SKIP_RENDERS;
+				count2++;
 			}
-			render();
-			
 			if(System.currentTimeMillis() - timer > 1000){
 				timer += 1000;
 				System.out.println("FPS: " + count);
+				System.out.println(count2);
 				count = 0;
-			}	
+				count2 = 0;
+			}
 		}
 	}
 	
 	public void tick(){
-		//velocity = Vector2D.addVectors(velocity, acceleration.multiplyRet(1.0/60));
-		//position = Vector2D.addVectors(position, velocity.multiplyRet(1.0/60));
-		ball.applyAcceleration(acceleration, 1.0/60);
-		ball.applyVelocity(1.0/60);
 		
+		velocity = Vector2D.addVectors(velocity, acceleration.multiplyRet(1.0/60));
+		position = Vector2D.addVectors(position, velocity.multiplyRet(1.0/60));
+
+		if(position.getX() > 1800/2){
+			position.setX(1800/2);
+			velocity.setX(velocity.getX() * -.9);
+		}
+			
+		if(position.getX() < 0){
+			position.setX(0);
+			velocity.setX(velocity.getX() * -.9);
+		}
+		if(position.getY() > 920/2){
+			position.setY(920/2);
+			velocity.setY(velocity.getY() * -.9);
+		}
+			
+		/*
 		System.out.println(velocity);
 		System.out.println(position);
-		
+		*/
 	}
 	
 	public void render(){
 		repaint();
 	}
 	
-	public void paint(Graphics g){
+	public void paintComponent(Graphics g){
+		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
+		RenderingHints rh = new RenderingHints(
+	             RenderingHints.KEY_ANTIALIASING,
+	             RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setRenderingHints(rh);
 		g2.setColor(Color.WHITE);
 		g2.fillRect(0, 0, 1920/2, 1080/2);
-		g2.setColor(ball.getColor());
-		g2.fillOval((int)ball.getPosition().getX(),(int)ball.getPosition().getY(), (int)(ball.getRadius()), (int)(ball.getRadius()));
-		
-		
+		g2.setColor(Color.BLACK);
+		g2.fillOval((int)position.getX(),(int)position.getY(), 50, 50);
+		g2.setColor(Color.RED);
+		Ellipse2D.Double o = new Ellipse2D.Double((int)position.getX() + 20, (int)position.getY() + 20, 3, 3);
+		path.add(o);
+		for(Shape s: path)
+			g2.fill(s);
 		g2.dispose();
 	}
-	
 	private long getTickCount(){
 		if(firstTick == 0)
 			firstTick = System.currentTimeMillis();
