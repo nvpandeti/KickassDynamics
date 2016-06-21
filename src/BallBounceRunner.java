@@ -21,6 +21,8 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	
 	private ArrayList<Shape> path;
 	
+	private Ball ball;
+	
 	public BallBounceRunner(){
 		
 		setSize(1920/2, 1080/2);
@@ -32,6 +34,8 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		position = new Vector2D(x, y);
 		velocity = new Vector2D(100, 0);
 		acceleration = new Vector2D(0, 21);
+		
+		ball = new Ball(position, velocity, 1, 50, Color.BLACK);
 		
 		setIgnoreRepaint(true);
 		
@@ -75,22 +79,26 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	}
 	
 	public void tick(){
-		
+		/*
 		velocity = Vector2D.addVectors(velocity, acceleration.multiplyRet(1.0/60));
 		position = Vector2D.addVectors(position, velocity.multiplyRet(1.0/60));
+		*/
+		
+		ball.applyAcceleration(acceleration, 1.0/60);
+		ball.applyVelocity(1.0/60);
 
-		if(position.getX() > 1800/2){
-			position.setX(1800/2);
-			velocity.setX(velocity.getX() * -.9);
+		if(ball.getPosition().getX() > 1800/2){
+			ball.getPosition().setX(1800/2);
+			ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
 		}
 			
-		if(position.getX() < 0){
-			position.setX(0);
-			velocity.setX(velocity.getX() * -.9);
+		if(ball.getPosition().getX() < 0){
+			ball.getPosition().setX(0);
+			ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
 		}
-		if(position.getY() > 920/2){
-			position.setY(920/2);
-			velocity.setY(velocity.getY() * -.9);
+		if(ball.getPosition().getY() > 910/2){
+			ball.getPosition().setY(910/2);
+			ball.getVelocity().setY(ball.getVelocity().getY() * -.9);
 		}
 			
 		/*
@@ -112,10 +120,9 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		g2.setRenderingHints(rh);
 		g2.setColor(Color.WHITE);
 		g2.fillRect(0, 0, 1920/2, 1080/2);
-		g2.setColor(Color.BLACK);
-		g2.fillOval((int)position.getX(),(int)position.getY(), 50, 50);
+		ball.render(g2);
 		g2.setColor(Color.RED);
-		Ellipse2D.Double o = new Ellipse2D.Double((int)position.getX() + 20, (int)position.getY() + 20, 3, 3);
+		Ellipse2D.Double o = new Ellipse2D.Double((int)ball.getPosition().getX() + 20, (int)ball.getPosition().getY() + 20, 3, 3);
 		path.add(o);
 		for(Shape s: path)
 			g2.fill(s);
