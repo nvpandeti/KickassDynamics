@@ -88,10 +88,11 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		/*
 		 * Lets make each pixel = 1 cm, each weight in kg., etc... Basically just use SI units
 		 */
-		ball.applyAcceleration(acceleration, 1.0/60);
+		
 		ball.applyForce(new Vector2D(-.5 * AIR_DENSITY * ball.getVelocity().x * Math.abs(ball.getVelocity().x) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius(),
 									 -.5 * AIR_DENSITY * ball.getVelocity().y * Math.abs(ball.getVelocity().y) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius()),
 						1.0/60);    // F drag = .5 * p * v^2 * Cd * A
+		ball.applyForce(new Vector2D(0, acceleration.y*ball.getMass()), 1.0/60);
 		ball.applyVelocity(1.0/60);
 
 		if(ball.getPosition().getX() > getWidth()-ball.getRadius()*2){
