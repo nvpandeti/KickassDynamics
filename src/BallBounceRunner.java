@@ -18,8 +18,8 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	
 	public BallBounceRunner(){
 		setSize(1920/2, 1080/2);
-		x = 200;
-		y = 200;
+		x = 100;
+		y = 100;
 		mass = 1;
 		force = mass * 9.81;
 		
@@ -33,10 +33,13 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	}
 	
 	public void run() {
-		final int TICKS_PER_SECOND = 60;
+		final int TICKS_PER_SECOND = 120;
 		final int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
 		final int MAX_FRAMESKIP = 5;
+		final int RENDERS_PER_SECOND = 200;
+		final int SKIP_RENDERS = 1000 / RENDERS_PER_SECOND;
 		long nextGameTick = getTickCount();
+		long nextRender = getTickCount();
 		int loops;
 		int count = 0;
 		long timer = System.currentTimeMillis();
@@ -48,6 +51,10 @@ public class BallBounceRunner extends JPanel implements Runnable{
 				nextGameTick += SKIP_TICKS;
 				loops++;
 				count++;
+			}
+			while(getTickCount() > nextRender){
+				render();
+				nextRender += SKIP_RENDERS;
 			}
 			render();
 			
