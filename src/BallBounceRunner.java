@@ -24,6 +24,7 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	private ArrayList<Shape> path;
 	
 	private Ball ball;
+	private ArrayList<Ball> balls;
 	
 	public BallBounceRunner(){
 		
@@ -37,7 +38,12 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		velocity = new Vector2D(100, 0);
 		acceleration = new Vector2D(0, 21);
 		
+		balls = new ArrayList<Ball>();
 		ball = new Ball(position, velocity, 1, 25, Color.BLACK);
+		balls.add(ball);
+		balls.add(new Ball(new Vector2D(100,100), new Vector2D(100,0), 2, 25, Color.GREEN));
+		balls.add(new Ball(new Vector2D(100,100), new Vector2D(100,0), 5, 25, Color.BLUE));
+		balls.add(new Ball(new Vector2D(100,100), new Vector2D(100,0), 10, 25, Color.RED));
 		
 		setIgnoreRepaint(true);
 		
@@ -88,27 +94,29 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		/*
 		 * Lets make each pixel = 1 cm, each weight in kg., etc... Basically just use SI units
 		 */
-		
-		ball.applyForce(new Vector2D(-.5 * AIR_DENSITY * ball.getVelocity().x * Math.abs(ball.getVelocity().x) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius(),
-									 -.5 * AIR_DENSITY * ball.getVelocity().y * Math.abs(ball.getVelocity().y) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius()),
-						1.0/60);    // F drag = .5 * p * v^2 * Cd * A
-		ball.applyForce(new Vector2D(0, acceleration.y*ball.getMass()), 1.0/60);
-		ball.applyVelocity(1.0/60);
-
-		if(ball.getPosition().getX() > getWidth()-ball.getRadius()*2){
-			ball.getPosition().setX(getWidth()-ball.getRadius()*2);
-			ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
-		}
+		for(Ball ball:balls)
+		{
 			
-		if(ball.getPosition().getX() < 0){
-			ball.getPosition().setX(0);
-			ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
+			ball.applyForce(new Vector2D(-.5 * AIR_DENSITY * ball.getVelocity().x * Math.abs(ball.getVelocity().x) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius(),
+										 -.5 * AIR_DENSITY * ball.getVelocity().y * Math.abs(ball.getVelocity().y) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius()),
+							1.0/60);    // F drag = .5 * p * v^2 * Cd * A
+			ball.applyForce(new Vector2D(0, acceleration.y*ball.getMass()), 1.0/60);
+			ball.applyVelocity(1.0/60);
+	
+			if(ball.getPosition().getX() > getWidth()-ball.getRadius()*2){
+				ball.getPosition().setX(getWidth()-ball.getRadius()*2);
+				ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
+			}
+				
+			if(ball.getPosition().getX() < 0){
+				ball.getPosition().setX(0);
+				ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
+			}
+			if(ball.getPosition().getY() > getHeight()-ball.getRadius()*2){
+				ball.getPosition().setY(getHeight()-ball.getRadius()*2);
+				ball.getVelocity().setY(ball.getVelocity().getY() * -.9);
+			}
 		}
-		if(ball.getPosition().getY() > getHeight()-ball.getRadius()*2){
-			ball.getPosition().setY(getHeight()-ball.getRadius()*2);
-			ball.getVelocity().setY(ball.getVelocity().getY() * -.9);
-		}
-			
 		//*
 		System.out.println("Velocity: "+ball.getVelocity());
 		System.out.println("Position: "+ball.getPosition());
@@ -129,10 +137,14 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		g2.setRenderingHints(rh);
 		g2.setColor(Color.WHITE);
 		g2.fillRect(0, 0, 1920/2, 1080/2);
-		ball.render(g2);
-		g2.setColor(Color.RED);
-		Ellipse2D.Double o = new Ellipse2D.Double((int)ball.getPosition().getX() + ball.getRadius(), (int)ball.getPosition().getY() + ball.getRadius(), 3, 3);
-		path.add(o);
+		for(Ball ball: balls)
+		{
+			
+			ball.render(g2);
+			g2.setColor(Color.RED);
+			Ellipse2D.Double o = new Ellipse2D.Double((int)ball.getPosition().getX() + ball.getRadius(), (int)ball.getPosition().getY() + ball.getRadius(), 3, 3);
+			path.add(o);
+		}
 		for(Shape s: path)
 			g2.fill(s);
 		g2.dispose();

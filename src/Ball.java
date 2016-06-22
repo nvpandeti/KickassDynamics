@@ -44,7 +44,7 @@ public class Ball {
 	}
 	
 	public void render(Graphics2D g2){
-		g2.setColor(Color.BLACK);
+		g2.setColor(color);
 		g2.fillOval((int)position.getX(),(int)position.getY(), radius*2, radius*2);
 	}
 	
