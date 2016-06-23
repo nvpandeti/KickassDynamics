@@ -40,7 +40,7 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	}
 	
 	public void run() {
-		final int TICKS_PER_SECOND = 120;
+		final int TICKS_PER_SECOND = 30;
 		final int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
 		final int RENDERS_PER_SECOND = 200;
 		final int SKIP_RENDERS = 1000 / RENDERS_PER_SECOND;
