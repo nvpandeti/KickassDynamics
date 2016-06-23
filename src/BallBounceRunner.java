@@ -16,44 +16,32 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	private boolean running = true;
 	private long firstTick = 0;
 	
-	private int x, y;
-	private double mass, force;
-	
-	private Vector2D position, velocity, acceleration;
-	
 	private ArrayList<Shape> path;
 	
-	private Ball ball;
-	private ArrayList<Ball> balls;
+	private Handler handler;
+	
+	RenderingHints rh = new RenderingHints(
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
 	
 	public BallBounceRunner(){
 		
 		setSize(1920/2, 1080/2);
-		x = 100;
-		y = 100;
-		mass = 1;
-		force = mass * 9.81;
-		
-		position = new Vector2D(x, y);
-		velocity = new Vector2D(100, 0);
-		acceleration = new Vector2D(0, 21);
-		
-		balls = new ArrayList<Ball>();
-		ball = new Ball(position, velocity, 1, 25, Color.BLACK);
-		balls.add(ball);
-		balls.add(new Ball(new Vector2D(100,100), new Vector2D(100,0), 2, 25, Color.GREEN));
-		balls.add(new Ball(new Vector2D(100,100), new Vector2D(100,0), 5, 25, Color.BLUE));
-		balls.add(new Ball(new Vector2D(100,100), new Vector2D(100,0), 10, 25, Color.RED));
 		
 		setIgnoreRepaint(true);
 		
 		path = new ArrayList<Shape>();
+		
+		handler = new Handler();
+		handler.add(new Ball(new Vector2D(100,100), new Vector2D(100, 0), 1, 2, 25, Color.BLACK, handler));
+		handler.add(new Ball(new Vector2D(200,100), new Vector2D(100,0), 2, 2, 25, Color.GREEN, handler));
+		handler.add(new Ball(new Vector2D(300,100), new Vector2D(100,0), 1, 2, 25, Color.BLUE, handler));
+		handler.add(new Ball(new Vector2D(400,100), new Vector2D(100,0), 20, 2, 25, Color.RED, handler));
 	}
 	
 	public void run() {
 		final int TICKS_PER_SECOND = 120;
 		final int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
-		final int MAX_FRAMESKIP = 5;
 		final int RENDERS_PER_SECOND = 200;
 		final int SKIP_RENDERS = 1000 / RENDERS_PER_SECOND;
 		long nextGameTick = getTickCount();
@@ -87,41 +75,7 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	}
 	
 	public void tick(){
-		/*
-		velocity = Vector2D.addVectors(velocity, acceleration.multiplyRet(1.0/60));
-		position = Vector2D.addVectors(position, velocity.multiplyRet(1.0/60));
-		*/
-		/*
-		 * Lets make each pixel = 1 cm, each weight in kg., etc... Basically just use SI units
-		 */
-		for(Ball ball:balls)
-		{
-			
-			ball.applyForce(new Vector2D(-.5 * AIR_DENSITY * ball.getVelocity().x * Math.abs(ball.getVelocity().x) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius(),
-										 -.5 * AIR_DENSITY * ball.getVelocity().y * Math.abs(ball.getVelocity().y) * Ball.coefficient_of_drag * Math.PI * ball.getRadius() * ball.getRadius()),
-							1.0/60);    // F drag = .5 * p * v^2 * Cd * A
-			ball.applyForce(new Vector2D(0, acceleration.y*ball.getMass()), 1.0/60);
-			ball.applyVelocity(1.0/60);
-	
-			if(ball.getPosition().getX() > getWidth()-ball.getRadius()*2){
-				ball.getPosition().setX(getWidth()-ball.getRadius()*2);
-				ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
-			}
-				
-			if(ball.getPosition().getX() < 0){
-				ball.getPosition().setX(0);
-				ball.getVelocity().setX(ball.getVelocity().getX() * -.9);
-			}
-			if(ball.getPosition().getY() > getHeight()-ball.getRadius()*2){
-				ball.getPosition().setY(getHeight()-ball.getRadius()*2);
-				ball.getVelocity().setY(ball.getVelocity().getY() * -.9);
-			}
-		}
-		//*
-		System.out.println("Velocity: "+ball.getVelocity());
-		System.out.println("Position: "+ball.getPosition());
-		/*
-		*/
+		handler.tick(getWidth(), getHeight());
 	}
 	
 	public void render(){
@@ -131,22 +85,20 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-		RenderingHints rh = new RenderingHints(
-	             RenderingHints.KEY_ANTIALIASING,
-	             RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setRenderingHints(rh);
 		g2.setColor(Color.WHITE);
-		g2.fillRect(0, 0, 1920/2, 1080/2);
-		for(Ball ball: balls)
+		g2.fillRect(0, 0, getWidth(), getHeight());
+		handler.render(g2);
+		for(PhysicsObject p: handler.getObjects())
 		{
-			
-			ball.render(g2);
-			g2.setColor(Color.RED);
+			Ball ball = (Ball) p;
 			Ellipse2D.Double o = new Ellipse2D.Double((int)ball.getPosition().getX() + ball.getRadius(), (int)ball.getPosition().getY() + ball.getRadius(), 3, 3);
 			path.add(o);
 		}
+		/*
 		for(Shape s: path)
 			g2.fill(s);
+		*/
 		g2.dispose();
 	}
 	private long getTickCount(){

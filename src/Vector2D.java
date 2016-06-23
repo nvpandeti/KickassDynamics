@@ -31,6 +31,10 @@ public class Vector2D {
 		return new Vector2D(x * m, y * m);
 	}
 	
+	public Vector2D divideRet(double m){
+		return new Vector2D(x / m, y / m);
+	}
+	
 	public void multiply(double m){
 		
 	}
@@ -42,6 +46,7 @@ public class Vector2D {
 	public static Vector2D subtractVectors(Vector2D a, Vector2D b){
 		return new Vector2D(a.x - b.x, a.y - b.y);
 	}
+	
 	
 	public static Vector2D dotProduct(Vector2D a, Vector2D b){
 		return new Vector2D(a.x * b.x, a.y * b.y);
