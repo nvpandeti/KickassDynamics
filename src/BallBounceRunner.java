@@ -17,6 +17,7 @@ public class BallBounceRunner extends JPanel implements Runnable{
 	private long firstTick = 0;
 	
 	private ArrayList<Shape> path;
+	private ArrayList<Color> pathColors;
 	
 	private Handler handler;
 	
@@ -31,16 +32,17 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		setIgnoreRepaint(true);
 		
 		path = new ArrayList<Shape>();
+		pathColors = new ArrayList<Color>();
 		
 		handler = new Handler();
 		handler.add(new Ball(new Vector2D(100,100), new Vector2D(100, 0), 1, 2, 25, Color.BLACK, handler));
 		handler.add(new Ball(new Vector2D(200,100), new Vector2D(100,0), 2, 2, 25, Color.GREEN, handler));
-		handler.add(new Ball(new Vector2D(300,100), new Vector2D(100,0), 1, 2, 25, Color.BLUE, handler));
-		handler.add(new Ball(new Vector2D(400,100), new Vector2D(100,0), 20, 2, 25, Color.RED, handler));
+		handler.add(new Ball(new Vector2D(300,100), new Vector2D(100,0), 5, 2, 25, Color.BLUE, handler));
+		handler.add(new Ball(new Vector2D(400,100), new Vector2D(100,0), 10, 2, 25, Color.RED, handler));
 	}
 	
 	public void run() {
-		final int TICKS_PER_SECOND = 30;
+		final int TICKS_PER_SECOND = 120;
 		final int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
 		final int RENDERS_PER_SECOND = 200;
 		final int SKIP_RENDERS = 1000 / RENDERS_PER_SECOND;
@@ -88,17 +90,22 @@ public class BallBounceRunner extends JPanel implements Runnable{
 		g2.setRenderingHints(rh);
 		g2.setColor(Color.WHITE);
 		g2.fillRect(0, 0, getWidth(), getHeight());
+		//*
+		for (int i = 0; i < path.size(); i++) {
+			g2.setColor(pathColors.get(i));
+			g2.fill(path.get(i));
+		}
+		/*
+		*/
 		handler.render(g2);
 		for(PhysicsObject p: handler.getObjects())
 		{
 			Ball ball = (Ball) p;
 			Ellipse2D.Double o = new Ellipse2D.Double((int)ball.getPosition().getX() + ball.getRadius(), (int)ball.getPosition().getY() + ball.getRadius(), 3, 3);
 			path.add(o);
+			pathColors.add(ball.getColor());
 		}
-		/*
-		for(Shape s: path)
-			g2.fill(s);
-		*/
+		
 		g2.dispose();
 	}
 	private long getTickCount(){
